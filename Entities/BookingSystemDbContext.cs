@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DeskBookingSystem.Entities
 {
-    internal class BookingSystemDbContext : DbContext
+    public class BookingSystemDbContext : DbContext
     {
         private string _connectionString = "Server=DESKTOP-2UA5DVQ;Database=DeskBookingSystemDb;Trusted_Connection=True;";
 

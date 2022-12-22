@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DeskBookingSystem.Entities
 {
-    internal class Desk
+    public class Desk
     {
         public int Id { get; set; }
         public int LocationId { get; set; }

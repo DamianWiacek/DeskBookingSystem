@@ -1,0 +1,31 @@
+﻿using DeskBookingSystem.Models;
+using DeskBookingSystem.Services;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DeskBookingSystem.Controllers
+{
+    [Route("api/LocationController")]
+    public class LocationsController : ControllerBase
+    {
+        private IlocationService _locationService;
+
+        public LocationsController(IlocationService locationService)
+        {
+            _locationService = locationService;
+        }
+
+        [HttpPost]
+        public ActionResult AddNewLocation([FromBody] NewLocationDto newLocationDto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var id = _locationService.AddLocation(newLocationDto);
+            return Created($"/api/LocationController/{id}", null);
+        }
+    }
+}

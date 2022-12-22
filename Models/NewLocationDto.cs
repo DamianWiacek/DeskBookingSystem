@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DeskBookingSystem.Entities
+namespace DeskBookingSystem.Models
 {
-    public class Role
+    public class NewLocationDto
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public int Name { get; set; }
     }
 }
