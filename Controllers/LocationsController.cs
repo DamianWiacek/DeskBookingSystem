@@ -27,5 +27,24 @@ namespace DeskBookingSystem.Controllers
             var id = _locationService.AddLocation(newLocationDto);
             return Created($"/api/LocationController/{id}", null);
         }
+        [HttpDelete("{name}")]
+        public ActionResult Delete([FromRoute]string name)
+        {
+            var isDeleted = _locationService.RemoveLocation(name);
+            if (isDeleted == "Deleted")
+            {
+                return NoContent();
+            }
+            else if (isDeleted == "BadRequest")
+            {
+                return BadRequest();
+            }
+            else
+            {
+                return NotFound();
+            }
+
+        }
+
     }
 }

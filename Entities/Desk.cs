@@ -10,6 +10,8 @@ namespace DeskBookingSystem.Entities
     {
         public int Id { get; set; }
         public int LocationId { get; set; }
+        public bool Available { get; set; }
+      
         public virtual Location Location { get; set; }  
     }
 }

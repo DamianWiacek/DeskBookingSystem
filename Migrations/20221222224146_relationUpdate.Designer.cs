@@ -4,6 +4,7 @@ using DeskBookingSystem.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DeskBookingSystem.Migrations
 {
     [DbContext(typeof(BookingSystemDbContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20221222224146_relationUpdate")]
+    partial class relationUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,10 +73,7 @@ namespace DeskBookingSystem.Migrations
                     b.Property<int>("DeskId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ReservationEnd")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ReservationStart")
+                    b.Property<DateTime>("ReservationDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")

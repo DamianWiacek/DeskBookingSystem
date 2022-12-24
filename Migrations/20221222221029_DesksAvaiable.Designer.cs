@@ -4,6 +4,7 @@ using DeskBookingSystem.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DeskBookingSystem.Migrations
 {
     [DbContext(typeof(BookingSystemDbContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20221222221029_DesksAvaiable")]
+    partial class DesksAvaiable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,13 +70,10 @@ namespace DeskBookingSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("DeskId")
+                    b.Property<int>("LocationId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ReservationEnd")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ReservationStart")
+                    b.Property<DateTime>("ReservationDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
@@ -82,7 +81,7 @@ namespace DeskBookingSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeskId");
+                    b.HasIndex("LocationId");
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -158,9 +157,9 @@ namespace DeskBookingSystem.Migrations
 
             modelBuilder.Entity("DeskBookingSystem.Entities.Reservation", b =>
                 {
-                    b.HasOne("DeskBookingSystem.Entities.Desk", "Desk")
-                        .WithMany()
-                        .HasForeignKey("DeskId")
+                    b.HasOne("DeskBookingSystem.Entities.Location", "Location")
+                        .WithMany("Reservations")
+                        .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -170,7 +169,7 @@ namespace DeskBookingSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Desk");
+                    b.Navigation("Location");
 
                     b.Navigation("User");
                 });
@@ -189,6 +188,8 @@ namespace DeskBookingSystem.Migrations
             modelBuilder.Entity("DeskBookingSystem.Entities.Location", b =>
                 {
                     b.Navigation("Desks");
+
+                    b.Navigation("Reservations");
                 });
 
             modelBuilder.Entity("DeskBookingSystem.Entities.User", b =>

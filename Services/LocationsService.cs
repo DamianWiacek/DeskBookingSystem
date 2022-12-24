@@ -12,7 +12,7 @@ namespace DeskBookingSystem.Services
     public interface IlocationService
     {
         public int AddLocation(NewLocationDto newLocationDto);
-        public int RemoveLocation();
+        public string RemoveLocation(string name);
 
     }
     public class LocationsService : IlocationService
@@ -33,9 +33,20 @@ namespace DeskBookingSystem.Services
             return newLocation.Id;
         }
 
-        public int RemoveLocation()
+        public string RemoveLocation(string name)
         {
-            throw new NotImplementedException();
+            var locationToRemove = _dbContext.Locations
+                .FirstOrDefault(l => l.Name == name);
+            if (locationToRemove == null)
+            {
+                return "NotFound";
+            }else if(locationToRemove.Desks != null)
+            {
+                return "BadRequest";
+            }
+            _dbContext.Remove(locationToRemove);
+            _dbContext.SaveChanges();
+            return "Deleted";
         }
     }
 }

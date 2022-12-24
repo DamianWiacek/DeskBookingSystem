@@ -9,10 +9,11 @@ namespace DeskBookingSystem.Entities
     public class Reservation
     {
         public int Id { get; set; }
-        public DateTime ReservationDate { get; set; }
+        public DateTime ReservationStart { get; set; }
+        public DateTime ReservationEnd{ get; set; }
         public int UserId { get; set; }
         public virtual User User { get; set; }
-        public int LocationId { get; set; }
-        public virtual Location Location { get; set; }
+        public int DeskId { get; set; }
+        public virtual Desk Desk { get; set; }
     }
 }
