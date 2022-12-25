@@ -9,6 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<BookingSystemDbContext>();
 builder.Services.AddScoped<IlocationService,LocationsService>();
 builder.Services.AddScoped<IDesksService, DesksService>();
+builder.Services.AddScoped<IReservationsService, ReservationsService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddSwaggerGen();
 
