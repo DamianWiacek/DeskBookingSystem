@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace DeskBookingSystem.Controllers
 {
     [Route("api/LocationController")]
+    [ApiController]
     public class LocationsController : ControllerBase
     {
         private IlocationService _locationService;
@@ -22,8 +23,6 @@ namespace DeskBookingSystem.Controllers
         [HttpPost]
         public ActionResult AddNewLocation([FromBody] NewLocationDto newLocationDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
             var id = _locationService.AddLocation(newLocationDto);
             return Created($"/api/LocationController/{id}", null);
         }

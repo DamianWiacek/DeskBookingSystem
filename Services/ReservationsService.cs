@@ -13,10 +13,12 @@ namespace DeskBookingSystem.Services
     {
         private readonly BookingSystemDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IAvailabilityService _availabilitySerrvice;
 
-        public ReservationsService(BookingSystemDbContext dbContext, IMapper mapper)
+        public ReservationsService(BookingSystemDbContext dbContext, IAvailabilityService availabilitySerrvice, IMapper mapper)
         {
             _dbContext = dbContext;
+            _availabilitySerrvice = availabilitySerrvice;
             _mapper = mapper;
         }
 
