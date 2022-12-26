@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DeskBookingSystem.Entities;
+using DeskBookingSystem.Exceptions;
 using DeskBookingSystem.Models;
 
 namespace DeskBookingSystem.Services
@@ -13,28 +14,28 @@ namespace DeskBookingSystem.Services
     {
         private readonly BookingSystemDbContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly IAvailabilityService _availabilitySerrvice;
+        private readonly IAvailabilityService _availabilityService;
 
-        public ReservationsService(BookingSystemDbContext dbContext, IAvailabilityService availabilitySerrvice, IMapper mapper)
+        public ReservationsService(BookingSystemDbContext dbContext, IAvailabilityService availabilityService, IMapper mapper)
         {
             _dbContext = dbContext;
-            _availabilitySerrvice = availabilitySerrvice;
+            _availabilityService = availabilityService;
             _mapper = mapper;
         }
 
         public int BookDesk(NewReservationDto newReservationDto)
         {
-            var reservationDuration = newReservationDto.ReservationEnd - newReservationDto.ReservationStart;
-            var currentTime = newReservationDto.ReservationStart > DateTime.Now;
+            var dateIsValid = _availabilityService
+                .DateIsValid(newReservationDto.ReservationStart, newReservationDto.ReservationEnd);
             var desk = _dbContext.Desks
-                .FirstOrDefault(d => d.Id == newReservationDto.DeskId);
-            var deskReservation = _dbContext.Reservations
-                .FirstOrDefault(r => r.ReservationEnd >= newReservationDto.ReservationStart
-                && r.ReservationStart <= newReservationDto.ReservationStart
-                && r.DeskId == newReservationDto.DeskId);
-                
-            if (reservationDuration.TotalDays > 7 || desk == null) return -1;
-            else if(desk.Available == false || deskReservation != null ) return -1;
+                .FirstOrDefault(d => d.Id == newReservationDto.DeskId);     
+            if (desk == null) throw new DeskNotFoundException("Desk not found");
+            var deskAvailableAtGivenTime = _availabilityService
+               .DeskIsAvailableAtGivenTime(desk.Id, newReservationDto.ReservationStart, newReservationDto.ReservationEnd);
+            if (!desk.Available || !deskAvailableAtGivenTime)
+            {
+                throw new DeskNotAvaibleException("Desk is not available at given time");
+            }
             var reservation = _mapper.Map<Reservation>(newReservationDto);
             _dbContext.Add(reservation);
             _dbContext.SaveChanges();

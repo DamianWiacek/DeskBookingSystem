@@ -13,6 +13,6 @@ namespace DeskBookingSystem.Entities
         public string Email { get; set; }
         public int RoleId { get; set; } = 1;
         public virtual Role Role { get; set; }
-        public virtual Reservation? Reservation { get; set;}
+        public virtual List<Reservation>? Reservations { get; set;}
     }
 }

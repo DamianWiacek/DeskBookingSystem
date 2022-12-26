@@ -1,6 +1,10 @@
 ﻿namespace DeskBookingSystem.Exceptions
 {
-    public class Class
+    public class DeskNotAvaibleException : Exception
     {
+        public DeskNotAvaibleException(string message) : base(message)
+        {
+
+        }
     }
 }

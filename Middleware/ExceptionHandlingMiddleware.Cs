@@ -24,7 +24,7 @@ namespace DeskBookingSystem.Middleware
             catch (DeskNotFoundException e)
             {
                 context.Response.StatusCode = 404;
-                await context.Response.WriteAsync("There is no desk with given Id");
+                await context.Response.WriteAsync(e.Message);
             }
             catch (Exception e)
             {

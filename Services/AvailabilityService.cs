@@ -6,7 +6,8 @@ namespace DeskBookingSystem.Services
 {
     public interface IAvailabilityService
     {
-        public bool DateIsAvailable(Reservation reservation);
+        public bool DeskIsAvailableAtGivenTime(int deskId, DateTime reservationStart, DateTime reservationEnd);
+        bool DateIsValid(DateTime reservationStart, DateTime reservationEnd);
     }
     public class AvailabilityService : IAvailabilityService
 {
@@ -16,26 +17,26 @@ namespace DeskBookingSystem.Services
         {
             _dbContext = dbContext;
         }
-
-        public bool DateIsAvailable(Reservation reservation)
+        //Method check if there are no other reservations for given DeskId in given time
+        public bool DeskIsAvailableAtGivenTime(int deskId, DateTime reservationStart, DateTime reservationEnd)
         {
-            
             var conflictingReservations = _dbContext.Reservations
                 //Reservations which ends during given reservation
-                .Where(r=> (r.ReservationEnd >= reservation.ReservationStart && r.ReservationEnd <= reservation.ReservationEnd
+                .FirstOrDefault(r => (r.ReservationEnd >= reservationStart && r.ReservationEnd <= reservationEnd
                 //Reservations which starts during given reservation
-                || r.ReservationStart<=reservation.ReservationEnd)
-                && r.DeskId == reservation.DeskId)
-                .ToList();
+                || (r.ReservationStart >= reservationStart && r.ReservationStart <= reservationEnd))
+                && r.DeskId == deskId);
+                
             if (conflictingReservations != null) return false;
             return true;
             
         }
-        public bool DateIsValid(Reservation reservation)
+        public bool DateIsValid(DateTime reservationStart, DateTime reservationEnd)
         {
-            var dateIsValid = (reservation.ReservationStart > DateTime.Now
-                                && reservation.ReservationEnd > reservation.ReservationStart);
-            if (!dateIsValid)
+            var dateIsValid = (reservationStart > DateTime.Now
+                                && reservationEnd > reservationStart);
+            var reservationDuration = (reservationEnd - reservationStart).TotalDays;
+            if (!dateIsValid || reservationDuration>7)
             {
                 return false;
             }
