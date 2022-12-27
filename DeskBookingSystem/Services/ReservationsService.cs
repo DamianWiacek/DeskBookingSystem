@@ -45,16 +45,12 @@ namespace DeskBookingSystem.Services
 
         public bool ChangeDesk(int reservationId, int newDeskId)
         {
-            var newDesk = _dbContext.Desks
-                .FirstOrDefault(d => d.Id == newDeskId);
             var reservation = _dbContext.Reservations
                 .FirstOrDefault(r => r.Id == reservationId);
-            if (newDesk == null || reservation == null) return false;
-            var deskReservation = _dbContext.Reservations
-                .FirstOrDefault(r => r.ReservationEnd >= reservation.ReservationStart
-                && r.ReservationStart <= reservation.ReservationStart
-                && r.DeskId == newDeskId);
-            if (newDesk.Available == false || deskReservation != null) return false;
+            if (reservation == null) return false;
+            var deskIsAvailable = _availabilityService
+                .DeskIsAvailableAtGivenTime(newDeskId,reservation.ReservationStart,reservation.ReservationEnd);
+            if (!deskIsAvailable) return false;
             reservation.DeskId= newDeskId;
             _dbContext.SaveChanges();
             return true;

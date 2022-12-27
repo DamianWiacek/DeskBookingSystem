@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DeskBookingSystem.Entities;
+using DeskBookingSystem.Exceptions;
 using DeskBookingSystem.Models;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace DeskBookingSystem.Services
     public interface IlocationService
     {
         public int AddLocation(NewLocationDto newLocationDto);
-        public string RemoveLocation(string name);
+        public bool RemoveLocation(string name);
 
     }
     public class LocationsService : IlocationService
@@ -33,20 +34,20 @@ namespace DeskBookingSystem.Services
             return newLocation.Id;
         }
 
-        public string RemoveLocation(string name)
+        public bool RemoveLocation(string name)
         {
             var locationToRemove = _dbContext.Locations
                 .FirstOrDefault(l => l.Name == name);
             if (locationToRemove == null)
             {
-                return "NotFound";
+                throw new LocationNotFoundException("There is no location with given name");
             }else if(locationToRemove.Desks != null)
             {
-                return "BadRequest";
+                throw new LocationNotEmptyException("There are desks in location you want to remove");
             }
             _dbContext.Remove(locationToRemove);
             _dbContext.SaveChanges();
-            return "Deleted";
+            return true;
         }
     }
 }

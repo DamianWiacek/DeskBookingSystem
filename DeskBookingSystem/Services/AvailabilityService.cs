@@ -20,13 +20,17 @@ namespace DeskBookingSystem.Services
         //Method check if there are no other reservations for given DeskId in given time
         public bool DeskIsAvailableAtGivenTime(int deskId, DateTime reservationStart, DateTime reservationEnd)
         {
+            var desk = _dbContext.Desks
+                .FirstOrDefault(d => d.Id == deskId);
+            if (desk == null) return false;
+            else if(desk.Available == false) return false;
             var conflictingReservations = _dbContext.Reservations
                 //Reservations which ends during given reservation
                 .FirstOrDefault(r => (r.ReservationEnd >= reservationStart && r.ReservationEnd <= reservationEnd
                 //Reservations which starts during given reservation
                 || (r.ReservationStart >= reservationStart && r.ReservationStart <= reservationEnd))
                 && r.DeskId == deskId);
-                
+            
             if (conflictingReservations != null) return false;
             return true;
             

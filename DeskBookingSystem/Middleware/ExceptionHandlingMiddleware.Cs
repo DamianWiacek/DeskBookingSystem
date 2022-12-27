@@ -21,7 +21,17 @@ namespace DeskBookingSystem.Middleware
                 context.Response.StatusCode = 400;
                 await context.Response.WriteAsync(e.Message);
             }
+            catch (LocationNotEmptyException e)
+            {
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsync(e.Message);
+            }
             catch (DeskNotFoundException e)
+            {
+                context.Response.StatusCode = 404;
+                await context.Response.WriteAsync(e.Message);
+            }
+            catch (LocationNotFoundException e)
             {
                 context.Response.StatusCode = 404;
                 await context.Response.WriteAsync(e.Message);

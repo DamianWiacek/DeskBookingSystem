@@ -30,19 +30,9 @@ namespace DeskBookingSystem.Controllers
         public ActionResult Delete([FromRoute]string name)
         {
             var isDeleted = _locationService.RemoveLocation(name);
-            if (isDeleted == "Deleted")
-            {
-                return NoContent();
-            }
-            else if (isDeleted == "BadRequest")
-            {
-                return BadRequest();
-            }
-            else
-            {
-                return NotFound();
-            }
-
+            if (isDeleted) return NoContent();
+            return NotFound();
+           
         }
 
     }

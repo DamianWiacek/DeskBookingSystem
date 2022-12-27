@@ -17,7 +17,8 @@ namespace DeskBookingSystem
 
             CreateMap<NewDeskDto, Desk>();
 
-            CreateMap<Desk, DeskDto>().ForMember(d=>d.LocationName, m=>m.MapFrom(l=>l.Location.Name));
+            CreateMap<Desk, DeskDto>()
+                .ForMember(d=>d.LocationName, m=>m.MapFrom(l=>l.Location.Name));
             CreateMap<NewReservationDto, Reservation>();
                 
         }

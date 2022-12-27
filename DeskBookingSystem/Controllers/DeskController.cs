@@ -44,17 +44,18 @@ namespace DeskBookingSystem.Controllers
             return NoContent();
 
         }
-        [HttpGet("{location}")]
-        public List<DeskDto> GetDesks([FromRoute] string location)
+        [HttpGet("/GetDesksEmployee/{location}")]
+        public List<DeskDto> GetDesksByLocation([FromRoute] string location)
         {
-            var desks = _desksService.GetDesks(location);
+            var desks = _desksService.GetDesksByLocation(location);
             return desks;
         }
-        [HttpGet]
-        public List<DeskDto> GetAllDesks()
+        [HttpGet("/GetDeskAdmin/{location}")]
+        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin([FromRoute] string location)
         {
-            var desks = _desksService.GetAllDesks();
+            var desks = _desksService.GetDesksByLocationForAdmin(location);
             return desks;
+           
         }
 
     }
