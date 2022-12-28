@@ -14,8 +14,7 @@ namespace DeskBookingSystem.Entities
         {
 
         }
-        private string _connectionString = "Server=DESKTOP-2UA5DVQ;Database=DeskBookingSystemDb;Trusted_Connection=True;";
-
+       
         public DbSet<Desk> Desks { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Location> Locations { get; set; }
@@ -32,11 +31,7 @@ namespace DeskBookingSystem.Entities
             new Role() { Id = 2, Name = "Administrator" });
 
         }
-        //Uncomment for database initialization, for tests purpose keep commented
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer(_connectionString);
-        //}
+       
 
     }
 }

@@ -11,7 +11,7 @@ namespace DeskBookingSystem.Middleware
             {
                 await next.Invoke(context);
             }
-            catch (BadDateException e)
+            catch (BadRequestException e)
             {
                 context.Response.StatusCode = 400;
                 await context.Response.WriteAsync(e.Message);
