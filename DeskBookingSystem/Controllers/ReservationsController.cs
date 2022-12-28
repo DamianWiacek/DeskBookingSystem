@@ -1,5 +1,6 @@
 ﻿using DeskBookingSystem.Models;
 using DeskBookingSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeskBookingSystem.Controllers
@@ -15,6 +16,7 @@ namespace DeskBookingSystem.Controllers
             _reservationsService = reservationsService;
         }
         [HttpPost]
+        [Authorize(Roles = "Employee")]
         public ActionResult BookDesk([FromBody] NewReservationDto newReservationDto)
         {
             var id = _reservationsService.BookDesk(newReservationDto);
@@ -23,6 +25,7 @@ namespace DeskBookingSystem.Controllers
         }
 
         [HttpPut("{reservationId}/{newDeskId}")]
+        [Authorize(Roles = "Administrator")]
         public ActionResult ChangeDesk(int reservationId, int newDeskId)
         {
             var isChanged = _reservationsService.ChangeDesk(reservationId, newDeskId);

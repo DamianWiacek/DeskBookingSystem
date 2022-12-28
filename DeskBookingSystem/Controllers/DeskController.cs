@@ -1,5 +1,6 @@
 ﻿using DeskBookingSystem.Models;
 using DeskBookingSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeskBookingSystem.Controllers
@@ -14,7 +15,9 @@ namespace DeskBookingSystem.Controllers
         {
             _desksService = desksService;
         }
+        
         [HttpPost]
+        [Authorize(Roles ="Administrator")]
         public ActionResult AddDesks([FromBody] NewDeskDto newDeskDto)
         {
             
@@ -24,6 +27,7 @@ namespace DeskBookingSystem.Controllers
         }
 
         [HttpPut("{id}/{availability}")]
+        [Authorize(Roles = "Administrator")]
         public ActionResult ManageAvailbility([FromRoute] int id, [FromRoute] bool availability)
         {
             
@@ -34,6 +38,7 @@ namespace DeskBookingSystem.Controllers
         }
         
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrator")]
         public ActionResult Delete(int id)
         {
             var isDeleted = _desksService.RemoveDesk(id);
@@ -45,12 +50,14 @@ namespace DeskBookingSystem.Controllers
 
         }
         [HttpGet("/GetDesksEmployee/{location}")]
+        [Authorize(Roles = "Employee")]
         public List<DeskDto> GetDesksByLocation([FromRoute] string location)
         {
             var desks = _desksService.GetDesksByLocation(location);
             return desks;
         }
         [HttpGet("/GetDeskAdmin/{location}")]
+        [Authorize(Roles = "Administrator")]
         public List<DeskDtoForAdmin> GetDesksByLocationForAdmin([FromRoute] string location)
         {
             var desks = _desksService.GetDesksByLocationForAdmin(location);

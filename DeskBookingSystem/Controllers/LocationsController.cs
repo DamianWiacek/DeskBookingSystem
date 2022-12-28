@@ -1,5 +1,6 @@
 ﻿using DeskBookingSystem.Models;
 using DeskBookingSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace DeskBookingSystem.Controllers
 {
     [Route("api/LocationController")]
     [ApiController]
+    [Authorize(Roles = "Administrator")]
     public class LocationsController : ControllerBase
     {
         private IlocationService _locationService;
