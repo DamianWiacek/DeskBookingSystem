@@ -11,7 +11,7 @@ builder.Services.AddDbContext<BookingSystemDbContext>();
 builder.Services.AddScoped<IlocationService,LocationsService>();
 builder.Services.AddScoped<IDesksService, DesksService>();
 builder.Services.AddScoped<IReservationsService, ReservationsService>();
-builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
+builder.Services.AddScoped<IDateValidationService, DateValidationService>();
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddSwaggerGen();

@@ -8,8 +8,8 @@ namespace DeskBookingSystem.Services
 {
     public interface IDesksService
     {
-        public List<DeskDto> GetDesksByLocation(string location);
-        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string location);
+        public List<DeskDto> GetDesksByLocation(string locationName);
+        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string locationName);
         public int AddDesk(NewDeskDto newDeskDto);
         public bool ManageAvailability(int id, bool availability);
         public bool RemoveDesk(int id);
@@ -18,13 +18,13 @@ namespace DeskBookingSystem.Services
     {
         private readonly BookingSystemDbContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly IAvailabilityService _availabilityService;
+        private readonly IDateValidationService _dateValidationService;
 
-        public DesksService(BookingSystemDbContext dbContext, IMapper mapper,IAvailabilityService availabilityService)
+        public DesksService(BookingSystemDbContext dbContext, IMapper mapper,IDateValidationService dateValidationService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _availabilityService = availabilityService;
+            _dateValidationService = dateValidationService;
         }
         public int AddDesk(NewDeskDto newDeskDto)
         {
@@ -39,10 +39,13 @@ namespace DeskBookingSystem.Services
 
         }
 
-        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string location)
+        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string locationName)
         {
+            var location = _dbContext.Locations
+                .FirstOrDefault(l => l.Name == locationName);
+            if (location == null) throw new LocationNotFoundException("There is no location with given name");
             var desks = from desk in _dbContext.Desks
-                        .Where(d=>d.Location.Name == location)
+                        .Where(d=>d.Location.Name == locationName)
                         join reservations in _dbContext.Reservations
                         .Where(r=>r.ReservationStart <= DateTime.Now
                         && r.ReservationEnd >= DateTime.Now)
@@ -57,16 +60,13 @@ namespace DeskBookingSystem.Services
             return desks.ToList();
         }
             
-        public List<DeskDto> GetDesksByLocation(string location)
+        public List<DeskDto> GetDesksByLocation(string locationName)
         {
-            //var desks = _dbContext.Desks
-            //    .Where(l=>l.Location.Name==location)
-            //    .Include(l=>l.Location)
-            //    .ToList();
-            //var desksDtos = _mapper.Map<List<DeskDto>>(desks);
-            //return desksDtos;
+            var location = _dbContext.Locations
+                     .FirstOrDefault(l => l.Name == locationName);
+            if (location == null) throw new LocationNotFoundException("There is no location with given name");
             var desks = from desk in _dbContext.Desks
-                        .Where(d => d.Location.Name == location)
+                        .Where(d => d.Location.Name == locationName)
                         join reservations in _dbContext.Reservations
                         .Where(r => r.ReservationStart <= DateTime.Now
                         && r.ReservationEnd >= DateTime.Now)
@@ -99,7 +99,7 @@ namespace DeskBookingSystem.Services
             var desk = _dbContext.Desks
                 .FirstOrDefault(d => d.Id == id);
             if (desk == null) throw new DeskNotFoundException("There is no desk with given Id");
-            var reservations = _availabilityService.DeskIsAvailableAtGivenTime(id, DateTime.Now, DateTime.Now);
+            var reservations = _dateValidationService.DeskIsAvailableAtGivenTime(id, DateTime.Now, DateTime.Now);
             if (reservations == false || desk.Available == false)
             {
                 throw new DeskNotAvaibleException("Desk is not available, cannot remove it.");

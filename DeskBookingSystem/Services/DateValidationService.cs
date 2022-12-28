@@ -4,16 +4,16 @@ using DeskBookingSystem.Models;
 
 namespace DeskBookingSystem.Services
 {
-    public interface IAvailabilityService
+    public interface IDateValidationService
     {
         public bool DeskIsAvailableAtGivenTime(int deskId, DateTime reservationStart, DateTime reservationEnd);
         bool DateIsValid(DateTime reservationStart, DateTime reservationEnd);
     }
-    public class AvailabilityService : IAvailabilityService
-{
+    public class DateValidationService : IDateValidationService
+    {
         private readonly BookingSystemDbContext _dbContext;
 
-        public AvailabilityService(BookingSystemDbContext dbContext)
+        public DateValidationService(BookingSystemDbContext dbContext)
         {
             _dbContext = dbContext;
         }

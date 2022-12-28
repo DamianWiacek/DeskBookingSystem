@@ -10,6 +10,10 @@ namespace DeskBookingSystem.Entities
 {
     public class BookingSystemDbContext : DbContext
     {
+        public BookingSystemDbContext(DbContextOptions<BookingSystemDbContext> options) : base(options)
+        {
+
+        }
         private string _connectionString = "Server=DESKTOP-2UA5DVQ;Database=DeskBookingSystemDb;Trusted_Connection=True;";
 
         public DbSet<Desk> Desks { get; set; }
@@ -28,9 +32,6 @@ namespace DeskBookingSystem.Entities
             new Role() { Id = 2, Name = "Administrator" });
 
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(_connectionString);
-        }
+        
     }
 }

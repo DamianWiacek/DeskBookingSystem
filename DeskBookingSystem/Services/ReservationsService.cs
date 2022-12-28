@@ -14,23 +14,23 @@ namespace DeskBookingSystem.Services
     {
         private readonly BookingSystemDbContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly IAvailabilityService _availabilityService;
+        private readonly IDateValidationService _dateValidationService;
 
-        public ReservationsService(BookingSystemDbContext dbContext, IAvailabilityService availabilityService, IMapper mapper)
+        public ReservationsService(BookingSystemDbContext dbContext, IDateValidationService dateValidationService, IMapper mapper)
         {
             _dbContext = dbContext;
-            _availabilityService = availabilityService;
+            _dateValidationService = dateValidationService;
             _mapper = mapper;
         }
 
         public int BookDesk(NewReservationDto newReservationDto)
         {
-            var dateIsValid = _availabilityService
+            var dateIsValid = _dateValidationService
                 .DateIsValid(newReservationDto.ReservationStart, newReservationDto.ReservationEnd);
             var desk = _dbContext.Desks
                 .FirstOrDefault(d => d.Id == newReservationDto.DeskId);     
             if (desk == null) throw new DeskNotFoundException("Desk not found");
-            var deskAvailableAtGivenTime = _availabilityService
+            var deskAvailableAtGivenTime = _dateValidationService
                .DeskIsAvailableAtGivenTime(desk.Id, newReservationDto.ReservationStart, newReservationDto.ReservationEnd);
             if (!desk.Available || !deskAvailableAtGivenTime)
             {
@@ -48,7 +48,9 @@ namespace DeskBookingSystem.Services
             var reservation = _dbContext.Reservations
                 .FirstOrDefault(r => r.Id == reservationId);
             if (reservation == null) return false;
-            var deskIsAvailable = _availabilityService
+            var hoursTillReservation = (reservation.ReservationStart - DateTime.Now).TotalHours;
+            if (hoursTillReservation < 24) return false;
+            var deskIsAvailable = _dateValidationService
                 .DeskIsAvailableAtGivenTime(newDeskId,reservation.ReservationStart,reservation.ReservationEnd);
             if (!deskIsAvailable) return false;
             reservation.DeskId= newDeskId;
