@@ -32,6 +32,11 @@ namespace DeskBookingSystem.Entities
             new Role() { Id = 2, Name = "Administrator" });
 
         }
-        
+        //Uncomment for database initialization, for tests purpose keep commented
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer(_connectionString);
+        //}
+
     }
 }
