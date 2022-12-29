@@ -8,8 +8,8 @@ namespace DeskBookingSystem.Services
 {
     public interface IDesksService
     {
-        public List<DeskDto> GetDesksByLocation(string locationName);
-        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string locationName);
+        public List<DeskDto> GetDesksByLocation(string locationName, DateTime sinceWhen, DateTime tillWhen);
+        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string locationName, DateTime sinceWhen, DateTime tillWhen);
         public int AddDesk(NewDeskDto newDeskDto);
         public bool ManageAvailability(int id, bool availability);
         public bool RemoveDesk(int id);
@@ -39,7 +39,7 @@ namespace DeskBookingSystem.Services
 
         }
 
-        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string locationName)
+        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string locationName, DateTime sinceWhen, DateTime tillWhen)
         {
             var location = _dbContext.Locations
                 .FirstOrDefault(l => l.Name == locationName);
@@ -47,8 +47,8 @@ namespace DeskBookingSystem.Services
             var desks = from desk in _dbContext.Desks
                         .Where(d=>d.Location.Name == locationName)
                         join reservations in _dbContext.Reservations
-                        .Where(r=>r.ReservationStart <= DateTime.Now
-                        && r.ReservationEnd >= DateTime.Now)
+                        .Where(r=>r.ReservationStart <= sinceWhen
+                        && r.ReservationEnd >= tillWhen)
                         on desk equals reservations.Desk into gj
                         from subreservation in gj.DefaultIfEmpty()
                         select new DeskDtoForAdmin { LocationName= desk.Location.Name,
@@ -60,7 +60,7 @@ namespace DeskBookingSystem.Services
             return desks.ToList();
         }
             
-        public List<DeskDto> GetDesksByLocation(string locationName)
+        public List<DeskDto> GetDesksByLocation(string locationName, DateTime sinceWhen, DateTime tillWhen)
         {
             var location = _dbContext.Locations
                      .FirstOrDefault(l => l.Name == locationName);
@@ -68,8 +68,8 @@ namespace DeskBookingSystem.Services
             var desks = from desk in _dbContext.Desks
                         .Where(d => d.Location.Name == locationName)
                         join reservations in _dbContext.Reservations
-                        .Where(r => r.ReservationStart <= DateTime.Now
-                        && r.ReservationEnd >= DateTime.Now)
+                        .Where(r => r.ReservationStart <= sinceWhen
+                        && r.ReservationEnd >= tillWhen)
                         on desk equals reservations.Desk into gj
                         from subreservation in gj.DefaultIfEmpty()
                         select new DeskDto

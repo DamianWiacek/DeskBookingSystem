@@ -35,6 +35,10 @@ namespace DeskBookingSystem.Services
             return true;
             
         }
+
+        //For given reservation start and end checks if reservation duration is not longer than 7 days,
+        //if reservation start is greater than its end and if its start is greater than current time so 
+        //employee cannot add reservation with past day
         public bool DateIsValid(DateTime reservationStart, DateTime reservationEnd)
         {
             var dateIsValid = (reservationStart > DateTime.Now

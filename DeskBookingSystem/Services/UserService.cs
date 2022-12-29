@@ -24,7 +24,7 @@ namespace DeskBookingSystem.Services
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
 
-        public UserService(BookingSystemDbContext dbContext, IMapper mapper, ILogger<UserService> logger, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+        public UserService(BookingSystemDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
         {
             _dbContext = dbContext;
             _mapper = mapper;

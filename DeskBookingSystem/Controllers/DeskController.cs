@@ -49,18 +49,18 @@ namespace DeskBookingSystem.Controllers
             return NoContent();
 
         }
-        [HttpGet("/GetDesksEmployee/{location}")]
+        [HttpGet("/GetDesksEmployee/{location}/{sinceWhen}/{tillWhen}")]
         [Authorize(Roles = "Employee")]
-        public List<DeskDto> GetDesksByLocation([FromRoute] string location)
+        public List<DeskDto> GetDesksByLocation([FromRoute] string location, DateTime sinceWhen, DateTime tillWhen)
         {
-            var desks = _desksService.GetDesksByLocation(location);
+            var desks = _desksService.GetDesksByLocation(location, sinceWhen, tillWhen);
             return desks;
         }
-        [HttpGet("/GetDeskAdmin/{location}")]
+        [HttpGet("/GetDeskAdmin/{location}/{sinceWhen}/{tillWhen}")]
         [Authorize(Roles = "Administrator")]
-        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin([FromRoute] string location)
+        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin([FromRoute] string location, DateTime sinceWhen, DateTime tillWhen)
         {
-            var desks = _desksService.GetDesksByLocationForAdmin(location);
+            var desks = _desksService.GetDesksByLocationForAdmin(location, sinceWhen, tillWhen);
             return desks;
            
         }

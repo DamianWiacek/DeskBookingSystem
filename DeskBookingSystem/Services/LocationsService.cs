@@ -26,6 +26,7 @@ namespace DeskBookingSystem.Services
             _dbContext = dbContext;
             _mapper = mapper;
         }
+        //Add Location
         public int AddLocation(NewLocationDto newLocationDto)
         {
             var newLocation = _mapper.Map<Location>(newLocationDto);
@@ -33,7 +34,7 @@ namespace DeskBookingSystem.Services
             _dbContext.SaveChanges();
             return newLocation.Id;
         }
-
+        //Remove location, throws exception if there is no location with given name or if there are desks in location
         public bool RemoveLocation(string name)
         {
             var locationToRemove = _dbContext.Locations
