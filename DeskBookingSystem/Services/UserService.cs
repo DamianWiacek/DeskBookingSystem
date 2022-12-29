@@ -32,7 +32,7 @@ namespace DeskBookingSystem.Services
             _authenticationSettings = authenticationSettings;
         }
 
-        
+        //Create user, hash given password and add to database
         public int Create(NewUserDto newUserDto)
         {
             var newUser = _mapper.Map<User>(newUserDto);
@@ -48,21 +48,25 @@ namespace DeskBookingSystem.Services
         }
 
 
-
+        //Login service check if there is user with given password and email and returns JWT token
         public string GenerateJwt(LoginDto loginDto)
         {
-            var user = _dbContext.Users.Include(x => x.Role).FirstOrDefault(x => x.Email == loginDto.Email);
+            //Find user with same email as given, join roles
+            var user = _dbContext.Users
+                .Include(x => x.Role)
+                .FirstOrDefault(x => x.Email == loginDto.Email);
             if (user == null)
             {
                 throw new BadRequestException("Invalid username or password");
             }
-
+            //Check if password after hash match hashed password of user in database
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginDto.Password);
             if (result == PasswordVerificationResult.Failed)
             {
                 throw new BadRequestException("Invalid username or password");
 
             }
+            //Make list of claims used for authentication 
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
@@ -72,17 +76,20 @@ namespace DeskBookingSystem.Services
 
 
             };
-
+            //Private key based on appsettings.json
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
+            //signing credentials hashed with HmacSha256 algorithm
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            //expiration date, set in appsetting.json
             var expires = DateTime.UtcNow.AddDays(_authenticationSettings.JwtExpireDays);
 
+            //Generating new JWT token
             var token = new JwtSecurityToken(_authenticationSettings.JwtIssuer,
                 _authenticationSettings.JwtIssuer,
                 claims,
                 expires: expires,
                 signingCredentials: cred);
-
+            //Returning Token as string
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(token);
         }
