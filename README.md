@@ -2,10 +2,10 @@
 Hot desk booking system is a system which should designed to automate the reservation of desk in
 office through an easy online booking system.
 
-
+## Features
 Administration:
 - Manage locations (add/remove, can&#39;t remove if desk exists in location)
-- Manage desk in locations (add/remove if no reservation/make unavailable)
+- Manage desk in locations (add/remove if no reservation/make unavailable) 
 
 Employees
 - Determine which desks are available to book or unavailable.
@@ -20,5 +20,13 @@ In nugget packet manager console run command Update-database, to apply migration
 
 Database Diagram:
 ![alt text](https://user-images.githubusercontent.com/109426665/209875936-c37b40b8-f906-4c53-b23a-a1e42a3d64c7.png)
+## Stack
+- .Net6
+- Ms Sql Server
+- EntityFrameworkCore
+- AutoMapper
+- JwtBearer
+- XUnit
+- Moq
 
 
