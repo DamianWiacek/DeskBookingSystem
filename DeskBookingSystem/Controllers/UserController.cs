@@ -27,8 +27,9 @@ namespace DeskBookingSystem.Controllers
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginDto loginDto)
         {
-            string token = _userService.GenerateJwt(loginDto);
-            return Ok(token);
+            var logedUser = _userService.GetLogedUser(loginDto);
+            return Ok(logedUser);
+            
         }
 
     }
