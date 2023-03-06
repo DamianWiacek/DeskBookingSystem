@@ -2,6 +2,7 @@
 using DeskBookingSystem.Entities;
 using DeskBookingSystem.Exceptions;
 using DeskBookingSystem.Models;
+using DeskBookingSystem.Repositories;
 
 namespace DeskBookingSystem.Services
 {
@@ -12,15 +13,17 @@ namespace DeskBookingSystem.Services
     }
     public class ReservationsService : IReservationsService
     {
-        private readonly BookingSystemDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IDeskRepository _deskRepository;
+        private readonly IReservationRepository _reservationRepository;
         private readonly IDateValidationService _dateValidationService;
 
-        public ReservationsService(BookingSystemDbContext dbContext, IDateValidationService dateValidationService, IMapper mapper)
+        public ReservationsService(BookingSystemDbContext dbContext, IDateValidationService dateValidationService, IMapper mapper, IDeskRepository deskRepository, IReservationRepository reservationRepository)
         {
-            _dbContext = dbContext;
             _dateValidationService = dateValidationService;
             _mapper = mapper;
+            _deskRepository = deskRepository;
+            _reservationRepository = reservationRepository;
         }
 
 
@@ -31,8 +34,8 @@ namespace DeskBookingSystem.Services
             var dateIsValid = _dateValidationService
                 .DateIsValid(newReservationDto.ReservationStart, newReservationDto.ReservationEnd);
             //Check if there is desk with given id
-            var desk = _dbContext.Desks
-                .FirstOrDefault(d => d.Id == newReservationDto.DeskId);     
+            var desk = _deskRepository.GetDeskById(newReservationDto.DeskId);
+           
             if (desk == null) throw new DeskNotFoundException("Desk not found");
             //Check if there is no other reservation or  if desk is available with date validator
             var deskAvailableAtGivenTime = _dateValidationService
@@ -42,16 +45,14 @@ namespace DeskBookingSystem.Services
                 throw new DeskNotAvaibleException("Desk is not available at given time");
             }
             var reservation = _mapper.Map<Reservation>(newReservationDto);
-            _dbContext.Add(reservation);
-            _dbContext.SaveChanges();
+            _reservationRepository.Add(reservation);
             return reservation.Id;
 
         }
         //Change desk to another return false if its too late or desk is not available, otherwise true
         public bool ChangeDesk(int reservationId, int newDeskId)
         {
-            var reservation = _dbContext.Reservations
-                .FirstOrDefault(r => r.Id == reservationId);
+            var reservation = _reservationRepository.GetById(reservationId);
             if (reservation == null) return false;
             var hoursTillReservation = (reservation.ReservationStart - DateTime.Now).TotalHours;
             if (hoursTillReservation < 24) return false;
@@ -59,7 +60,7 @@ namespace DeskBookingSystem.Services
                 .DeskIsAvailableAtGivenTime(newDeskId,reservation.ReservationStart,reservation.ReservationEnd);
             if (!deskIsAvailable) return false;
             reservation.DeskId= newDeskId;
-            _dbContext.SaveChanges();
+            _reservationRepository.SaveChanges();
             return true;
         }
     }

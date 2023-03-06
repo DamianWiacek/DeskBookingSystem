@@ -2,6 +2,7 @@ using AutoMapper;
 using DeskBookingSystem.Entities;
 using DeskBookingSystem.Exceptions;
 using DeskBookingSystem.Models;
+using DeskBookingSystem.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,20 +17,22 @@ namespace DeskBookingSystem.Services
         public int Create(NewUserDto newUserDto);
         public string GenerateJwt(LoginDto loginDto);
 
+        public LogedUserDto GetLogedUser(LoginDto loginDto);
+
     }
     public class UserService : IUserService
     {
-        private readonly BookingSystemDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(BookingSystemDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+        public UserService(BookingSystemDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IUserRepository userRepository)
         {
-            _dbContext = dbContext;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
+            _userRepository = userRepository;
         }
 
         //Create user, hash given password and add to database
@@ -38,10 +41,7 @@ namespace DeskBookingSystem.Services
             var newUser = _mapper.Map<User>(newUserDto);
             var hashedPasswd = _passwordHasher.HashPassword(newUser, newUserDto.Password);
             newUser.PasswordHash = hashedPasswd;
-            _dbContext.Users.Add(newUser);
-            _dbContext.SaveChanges();
-
-
+            _userRepository.AddUser(newUser);
 
             return newUser.Id;
 
@@ -52,9 +52,7 @@ namespace DeskBookingSystem.Services
         public string GenerateJwt(LoginDto loginDto)
         {
             //Find user with same email as given, join roles
-            var user = _dbContext.Users
-                .Include(x => x.Role)
-                .FirstOrDefault(x => x.Email == loginDto.Email);
+            var user = _userRepository.GetUserByEmail(loginDto.Email);
             if (user == null)
             {
                 throw new BadRequestException("Invalid username or password");
@@ -93,5 +91,31 @@ namespace DeskBookingSystem.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(token);
         }
+
+        public LogedUserDto GetLogedUser(LoginDto loginDto)
+        {
+            //Find user with same email as given
+            var user = _userRepository.GetUserByEmail(loginDto.Email);
+            if (user == null)
+            {
+                throw new BadRequestException("Invalid username or password");
+            }
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginDto.Password);
+            if (result == PasswordVerificationResult.Failed)
+            {
+                throw new BadRequestException("Invalid username or password");
+
+            }
+
+            return new LogedUserDto()
+                                {
+                                    Name = user.Name,
+                                    Email = user.Email,
+                                    RoleName = user.Role.Name,
+                                    Token = GenerateJwt(loginDto),
+                                };
+            
+        }
     }
-}
+
+}   

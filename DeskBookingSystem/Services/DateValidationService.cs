@@ -1,6 +1,7 @@
 ﻿using DeskBookingSystem.Entities;
 using DeskBookingSystem.Exceptions;
 using DeskBookingSystem.Models;
+using DeskBookingSystem.Repositories;
 
 namespace DeskBookingSystem.Services
 {
@@ -11,20 +12,21 @@ namespace DeskBookingSystem.Services
     }
     public class DateValidationService : IDateValidationService
     {
-        private readonly BookingSystemDbContext _dbContext;
+        private readonly DeskRepository _deskRepository;
+        private readonly ReservationRepository _reservationRepository;
 
-        public DateValidationService(BookingSystemDbContext dbContext)
+        public DateValidationService(DeskRepository deskRepository, ReservationRepository reservationRepository)
         {
-            _dbContext = dbContext;
+            _deskRepository = deskRepository;
+            _reservationRepository = reservationRepository;
         }
         //Method check if there are no other reservations for given DeskId in given time
         public bool DeskIsAvailableAtGivenTime(int deskId, DateTime reservationStart, DateTime reservationEnd)
         {
-            var desk = _dbContext.Desks
-                .FirstOrDefault(d => d.Id == deskId);
+            var desk = _deskRepository.GetDeskById(deskId);
             if (desk == null) return false;
             else if(desk.Available == false) return false;
-            var conflictingReservations = _dbContext.Reservations
+            var conflictingReservations = _reservationRepository.GetAll()
                 //Reservations which ends during given reservation
                 .FirstOrDefault(r => (r.ReservationEnd >= reservationStart && r.ReservationEnd <= reservationEnd
                 //Reservations which starts during given reservation
