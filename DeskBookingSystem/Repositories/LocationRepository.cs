@@ -5,10 +5,10 @@ namespace DeskBookingSystem.Repositories
 {
     public interface ILocationRepository
     {
-        public IQueryable<Location> GetLocations();
-        public void AddLocation(Location location);
-        public Location GetByName(string name);
-        public void DeleteLocation(Location location); 
+        public Task<List<Location>> GetLocations();
+        public Task AddLocation(Location location);
+        public Task<Location> GetByName(string name);
+        public Task DeleteLocation(Location location); 
     }
     public class LocationRepository : ILocationRepository
     {
@@ -19,26 +19,26 @@ namespace DeskBookingSystem.Repositories
             _dbContext = dbContext;
         }
 
-        public void AddLocation(Location location)
+        public async Task AddLocation(Location location)
         {
-            _dbContext.Locations.Add(location);
-            _dbContext.SaveChanges();
+            await _dbContext.Locations.AddAsync(location);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteLocation(Location location)
+        public async Task DeleteLocation(Location location)
         {
             _dbContext.Remove(location);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public Location GetByName(string name)
+        public async Task<Location> GetByName(string name)
         {
-            return _dbContext.Locations.FirstOrDefault(l => l.Name == name);
+            return await _dbContext.Locations.FirstOrDefaultAsync(l => l.Name == name);
         }
 
-        public IQueryable<Location> GetLocations()
+        public async Task<List<Location>> GetLocations()
         {
-            return _dbContext.Locations;
+            return await _dbContext.Locations.ToListAsync();  
         }
     }
 }

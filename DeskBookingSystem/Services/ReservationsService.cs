@@ -8,8 +8,8 @@ namespace DeskBookingSystem.Services
 {
     public interface IReservationsService
     {
-        public int BookDesk(NewReservationDto newReservationDto);
-        public bool ChangeDesk(int reservationId, int newDeskId);
+        public Task<int> BookDesk(NewReservationDto newReservationDto);
+        public Task<bool> ChangeDesk(int reservationId, int newDeskId);
     }
     public class ReservationsService : IReservationsService
     {
@@ -28,39 +28,39 @@ namespace DeskBookingSystem.Services
 
 
         //Book desk with given ID for chosen time throws exception if there is no desk with given id or desk is not available
-        public int BookDesk(NewReservationDto newReservationDto)
+        public async Task<int> BookDesk(NewReservationDto newReservationDto)
         {
             //use date validator to check if reservation is not too long, and does not start in past days
-            var dateIsValid = _dateValidationService
+            var dateIsValid = await _dateValidationService
                 .DateIsValid(newReservationDto.ReservationStart, newReservationDto.ReservationEnd);
             //Check if there is desk with given id
-            var desk = _deskRepository.GetDeskById(newReservationDto.DeskId);
+            var desk = await _deskRepository.GetDeskById(newReservationDto.DeskId);
            
             if (desk == null) throw new DeskNotFoundException("Desk not found");
             //Check if there is no other reservation or  if desk is available with date validator
-            var deskAvailableAtGivenTime = _dateValidationService
+            var deskAvailableAtGivenTime = await _dateValidationService
                .DeskIsAvailableAtGivenTime(desk.Id, newReservationDto.ReservationStart, newReservationDto.ReservationEnd);
             if (!desk.Available || !deskAvailableAtGivenTime)
             {
                 throw new DeskNotAvaibleException("Desk is not available at given time");
             }
             var reservation = _mapper.Map<Reservation>(newReservationDto);
-            _reservationRepository.Add(reservation);
+            await _reservationRepository.Add(reservation);
             return reservation.Id;
 
         }
         //Change desk to another return false if its too late or desk is not available, otherwise true
-        public bool ChangeDesk(int reservationId, int newDeskId)
+        public async Task<bool> ChangeDesk(int reservationId, int newDeskId)
         {
-            var reservation = _reservationRepository.GetById(reservationId);
+            var reservation = await _reservationRepository.GetById(reservationId);
             if (reservation == null) return false;
             var hoursTillReservation = (reservation.ReservationStart - DateTime.Now).TotalHours;
             if (hoursTillReservation < 24) return false;
-            var deskIsAvailable = _dateValidationService
+            var deskIsAvailable = await _dateValidationService
                 .DeskIsAvailableAtGivenTime(newDeskId,reservation.ReservationStart,reservation.ReservationEnd);
             if (!deskIsAvailable) return false;
             reservation.DeskId= newDeskId;
-            _reservationRepository.SaveChanges();
+            await _reservationRepository.SaveChanges();
             return true;
         }
     }

@@ -5,11 +5,11 @@ namespace DeskBookingSystem.Repositories
 {
     public interface IDeskRepository
     {
-        public void AddDesk(Desk desk);
-        public IQueryable<Desk> GetDesks();
-        public bool UpdateDeskAvailability(int id, bool availability);
-        public void RemoveDesk(Desk desk);
-        public Desk GetDeskById(int deskId);
+        public Task AddDesk(Desk desk);
+        public Task<List<Desk>> GetDesks();
+        public Task<bool> UpdateDeskAvailability(int id, bool availability);
+        public Task RemoveDesk(Desk desk);
+        public Task<Desk> GetDeskById(int deskId);
     }
     public class DeskRepository : IDeskRepository
     {
@@ -21,34 +21,34 @@ namespace DeskBookingSystem.Repositories
         }
 
 
-        public void AddDesk(Desk desk)
+        public async Task AddDesk(Desk desk)
         {
-            _dbContext.Add(desk);
-            _dbContext.SaveChanges();
+            await _dbContext.AddAsync(desk);
+            await _dbContext.SaveChangesAsync();
         }
         
        
-        public IQueryable<Desk> GetDesks()
+        public async Task<List<Desk>> GetDesks()
         {
-            return _dbContext.Desks;
+            return await _dbContext.Desks.ToListAsync();
         }
-        public bool UpdateDeskAvailability(int id, bool availability)
+        public async Task<bool> UpdateDeskAvailability(int id, bool availability)
         {
-            var desk = _dbContext.Desks
-                .FirstOrDefault(d => d.Id == id);
+            var desk = await _dbContext.Desks
+                .FirstOrDefaultAsync(d => d.Id == id);
             desk.Available = availability;
-            _dbContext.SaveChanges();
+            _dbContext.SaveChangesAsync();
             return true;
         }
-        public void RemoveDesk(Desk desk)
+        public async Task RemoveDesk(Desk desk)
         {
             _dbContext.Remove(desk);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public Desk GetDeskById(int deskId)
+        public async Task<Desk> GetDeskById(int deskId)
         {
-            return _dbContext.Desks.FirstOrDefault(d => d.Id == deskId);
+            return await _dbContext.Desks.FirstOrDefaultAsync(d => d.Id == deskId);
         }
     }
 }

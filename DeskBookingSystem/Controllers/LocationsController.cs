@@ -23,15 +23,15 @@ namespace DeskBookingSystem.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddNewLocation([FromBody] NewLocationDto newLocationDto)
+        public async Task<ActionResult> AddNewLocation([FromBody] NewLocationDto newLocationDto)
         {
-            var id = _locationService.AddLocation(newLocationDto);
+            var id = await _locationService.AddLocation(newLocationDto);
             return Created($"/api/LocationController/{id}", null);
         }
         [HttpDelete("{name}")]
-        public ActionResult Delete([FromRoute]string name)
+        public async Task<ActionResult> Delete([FromRoute]string name)
         {
-            var isDeleted = _locationService.RemoveLocation(name);
+            var isDeleted = await _locationService.RemoveLocation(name);
             if (isDeleted) return NoContent();
             return NotFound();
            

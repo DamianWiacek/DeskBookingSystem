@@ -17,21 +17,21 @@ namespace DeskBookingSystem.Controllers
         }
         
         [HttpPost]
-        [Authorize(Roles ="Administrator")]
-        public ActionResult AddDesks([FromBody] NewDeskDto newDeskDto)
+        //5[Authorize(Roles ="Administrator")]
+        public async Task<ActionResult> AddDesks([FromBody] NewDeskDto newDeskDto)
         {
             
-            var id = _desksService.AddDesk(newDeskDto);
+            var id = await _desksService.AddDesk(newDeskDto);
             if (id > -1) return Created($"/api/DeskController/{id}",null);
             return BadRequest();
         }
 
         [HttpPut("{id}/{availability}")]
         [Authorize(Roles = "Administrator")]
-        public ActionResult ManageAvailbility([FromRoute] int id, [FromRoute] bool availability)
+        public async Task<ActionResult> ManageAvailbility([FromRoute] int id, [FromRoute] bool availability)
         {
             
-            var isUpdated = _desksService.ManageAvailability(id, availability);
+            var isUpdated = await _desksService.ManageAvailability(id, availability);
             if (!isUpdated) return NotFound();
             return Ok();
             
@@ -39,9 +39,9 @@ namespace DeskBookingSystem.Controllers
         
         [HttpDelete("{id}")]
         [Authorize(Roles = "Administrator")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var isDeleted = _desksService.RemoveDesk(id);
+            var isDeleted = await _desksService.RemoveDesk(id);
             if (!isDeleted)
             {
                 return BadRequest();
@@ -51,16 +51,16 @@ namespace DeskBookingSystem.Controllers
         }
         [HttpGet("/GetDesksEmployee/{location}/{sinceWhen}/{tillWhen}")]
         [Authorize(Roles = "Employee")]
-        public List<DeskDto> GetDesksByLocation([FromRoute] string location, DateTime sinceWhen, DateTime tillWhen)
+        public async Task<List<DeskDto>> GetDesksByLocation([FromRoute] string location, DateTime sinceWhen, DateTime tillWhen)
         {
-            var desks = _desksService.GetDesksByLocation(location, sinceWhen, tillWhen);
+            var desks = await _desksService.GetDesksByLocation(location, sinceWhen, tillWhen);
             return desks;
         }
         [HttpGet("/GetDeskAdmin/{location}/{sinceWhen}/{tillWhen}")]
         [Authorize(Roles = "Administrator")]
-        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin([FromRoute] string location, DateTime sinceWhen, DateTime tillWhen)
+        public async Task<List<DeskDtoForAdmin>> GetDesksByLocationForAdmin([FromRoute] string location, DateTime sinceWhen, DateTime tillWhen)
         {
-            var desks = _desksService.GetDesksByLocationForAdmin(location, sinceWhen, tillWhen);
+            var desks = await _desksService.GetDesksByLocationForAdmin(location, sinceWhen, tillWhen);
             return desks;
            
         }

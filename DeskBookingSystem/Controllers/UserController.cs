@@ -17,17 +17,17 @@ namespace DeskBookingSystem.Controllers
        
 
         [HttpPost]
-        public ActionResult CreateUser([FromBody] NewUserDto newUser)
+        public async Task<ActionResult> CreateUser([FromBody] NewUserDto newUser)
         {
             
-            var id = _userService.Create(newUser);
+            var id = await _userService.Create(newUser);
             return Created($"/api/UserController/{id}", null);
         }
         
         [HttpPost("login")]
-        public ActionResult Login([FromBody] LoginDto loginDto)
+        public async Task<ActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var logedUser = _userService.GetLogedUser(loginDto);
+            var logedUser = await _userService.GetLogedUser(loginDto);
             return Ok(logedUser);
             
         }

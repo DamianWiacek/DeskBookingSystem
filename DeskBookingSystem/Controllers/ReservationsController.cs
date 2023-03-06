@@ -17,18 +17,18 @@ namespace DeskBookingSystem.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "Employee")]
-        public ActionResult BookDesk([FromBody] NewReservationDto newReservationDto)
+        public async Task<ActionResult> BookDesk([FromBody] NewReservationDto newReservationDto)
         {
-            var id = _reservationsService.BookDesk(newReservationDto);
+            var id = await _reservationsService.BookDesk(newReservationDto);
             if (id > -1) return Created($"/api/ReservationController/{id}", null);
             return BadRequest();
         }
 
         [HttpPut("{reservationId}/{newDeskId}")]
         [Authorize(Roles = "Administrator")]
-        public ActionResult ChangeDesk(int reservationId, int newDeskId)
+        public async Task<ActionResult> ChangeDesk(int reservationId, int newDeskId)
         {
-            var isChanged = _reservationsService.ChangeDesk(reservationId, newDeskId);
+            var isChanged = await _reservationsService.ChangeDesk(reservationId, newDeskId);
             if (!isChanged) return BadRequest();
             return Ok();
 

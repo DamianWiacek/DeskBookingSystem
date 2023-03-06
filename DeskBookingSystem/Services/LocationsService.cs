@@ -13,8 +13,8 @@ namespace DeskBookingSystem.Services
 {
     public interface IlocationService
     {
-        public int AddLocation(NewLocationDto newLocationDto);
-        public bool RemoveLocation(string name);
+        public Task<int> AddLocation(NewLocationDto newLocationDto);
+        public Task<bool> RemoveLocation(string name);
 
     }
     public class LocationsService : IlocationService
@@ -28,16 +28,16 @@ namespace DeskBookingSystem.Services
             _locationRepository = locationRepository;
         }
         //Add Location
-        public int AddLocation(NewLocationDto newLocationDto)
+        public async Task<int> AddLocation(NewLocationDto newLocationDto)
         {
             var newLocation = _mapper.Map<Location>(newLocationDto);
-            _locationRepository.AddLocation(newLocation);
+            await _locationRepository.AddLocation(newLocation);
             return newLocation.Id;
         }
         //Remove location, throws exception if there is no location with given name or if there are desks in location
-        public bool RemoveLocation(string name)
+        public async Task<bool> RemoveLocation(string name)
         {
-            var locationToRemove = _locationRepository.GetByName(name);
+            var locationToRemove = await _locationRepository.GetByName(name);
             if (locationToRemove == null)
             {
                 throw new LocationNotFoundException("There is no location with given name");
@@ -45,7 +45,7 @@ namespace DeskBookingSystem.Services
             {
                 throw new LocationNotEmptyException("There are desks in location you want to remove");
             }
-            _locationRepository.DeleteLocation(locationToRemove);
+            await _locationRepository.DeleteLocation(locationToRemove);
             return true;
         }
     }

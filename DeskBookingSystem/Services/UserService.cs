@@ -14,10 +14,9 @@ namespace DeskBookingSystem.Services
 {
     public interface IUserService
     {
-        public int Create(NewUserDto newUserDto);
-        public string GenerateJwt(LoginDto loginDto);
-
-        public LogedUserDto GetLogedUser(LoginDto loginDto);
+        public Task<int> Create(NewUserDto newUserDto);
+        public Task<string> GenerateJwt(LoginDto loginDto);
+        public Task<LogedUserDto> GetLogedUser(LoginDto loginDto);
 
     }
     public class UserService : IUserService
@@ -36,12 +35,12 @@ namespace DeskBookingSystem.Services
         }
 
         //Create user, hash given password and add to database
-        public int Create(NewUserDto newUserDto)
+        public async Task<int> Create(NewUserDto newUserDto)
         {
             var newUser = _mapper.Map<User>(newUserDto);
             var hashedPasswd = _passwordHasher.HashPassword(newUser, newUserDto.Password);
             newUser.PasswordHash = hashedPasswd;
-            _userRepository.AddUser(newUser);
+            await _userRepository.AddUser(newUser);
 
             return newUser.Id;
 
@@ -49,10 +48,10 @@ namespace DeskBookingSystem.Services
 
 
         //Login service check if there is user with given password and email and returns JWT token
-        public string GenerateJwt(LoginDto loginDto)
+        public async Task<string> GenerateJwt(LoginDto loginDto)
         {
             //Find user with same email as given, join roles
-            var user = _userRepository.GetUserByEmail(loginDto.Email);
+            var user = await _userRepository.GetUserByEmail(loginDto.Email);
             if (user == null)
             {
                 throw new BadRequestException("Invalid username or password");
@@ -92,10 +91,10 @@ namespace DeskBookingSystem.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public LogedUserDto GetLogedUser(LoginDto loginDto)
+        public async Task<LogedUserDto> GetLogedUser(LoginDto loginDto)
         {
             //Find user with same email as given
-            var user = _userRepository.GetUserByEmail(loginDto.Email);
+            var user = await _userRepository.GetUserByEmail(loginDto.Email);
             if (user == null)
             {
                 throw new BadRequestException("Invalid username or password");
@@ -112,7 +111,7 @@ namespace DeskBookingSystem.Services
                                     Name = user.Name,
                                     Email = user.Email,
                                     RoleName = user.Role.Name,
-                                    Token = GenerateJwt(loginDto),
+                                    Token = await GenerateJwt(loginDto),
                                 };
             
         }

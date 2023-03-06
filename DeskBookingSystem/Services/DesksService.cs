@@ -9,11 +9,11 @@ namespace DeskBookingSystem.Services
 {
     public interface IDesksService
     {
-        public List<DeskDto> GetDesksByLocation(string locationName, DateTime sinceWhen, DateTime tillWhen);
-        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string locationName, DateTime sinceWhen, DateTime tillWhen);
-        public int AddDesk(NewDeskDto newDeskDto);
-        public bool ManageAvailability(int id, bool availability);
-        public bool RemoveDesk(int id);
+        public Task<List<DeskDto>> GetDesksByLocation(string locationName, DateTime sinceWhen, DateTime tillWhen);
+        public Task<List<DeskDtoForAdmin>> GetDesksByLocationForAdmin(string locationName, DateTime sinceWhen, DateTime tillWhen);
+        public Task<int> AddDesk(NewDeskDto newDeskDto);
+        public Task<bool> ManageAvailability(int id, bool availability);
+        public Task<bool> RemoveDesk(int id);
     }
     public class DesksService : IDesksService
     {
@@ -33,29 +33,27 @@ namespace DeskBookingSystem.Services
         }
 
         //Add new desk, throws exception if there is no location with given name 
-        public int AddDesk(NewDeskDto newDeskDto)
+        public async Task<int> AddDesk(NewDeskDto newDeskDto)
         {
-            var location = _locationRepository.GetLocations()
-                .FirstOrDefault(l => l.Name == newDeskDto.LocationName);
+            var location = await _locationRepository.GetByName(newDeskDto.LocationName);
             if (location == null) throw new LocationNotFoundException("There is no location with given name");
             var newDesk = _mapper.Map<Desk>(newDeskDto);
             newDesk.LocationId = location.Id;
-            _deskRepository.AddDesk(newDesk);
+            await _deskRepository.AddDesk(newDesk);
             return newDesk.Id;
 
         }
         //List all desks and their availability at given time, its administrator version so users will be able to
         //see if desks is reserved, id of user who is reserving it, and its availability
-        public List<DeskDtoForAdmin> GetDesksByLocationForAdmin(string locationName, DateTime sinceWhen, DateTime tillWhen)
+        public async Task<List<DeskDtoForAdmin>> GetDesksByLocationForAdmin(string locationName, DateTime sinceWhen, DateTime tillWhen)
         {
-            var location = _locationRepository.GetLocations()
-                .FirstOrDefault(l => l.Name == locationName);
+            var location = _locationRepository.GetByName(locationName);
             if (location == null) throw new LocationNotFoundException("There is no location with given name");
             //Left join to desks with given location desks where there is some reservation at given time
             //from joined reservations, LINQ map UserID to ReservingUserId in DeskDtoForAdmin
-            var desks = from desk in _deskRepository.GetDesks()
+            var desks = from desk in (await _deskRepository.GetDesks())
                         .Where(d=>d.Location.Name == locationName)
-                        join reservations in _reservationRepository.GetReservations()
+                        join reservations in (await _reservationRepository.GetReservations())
                         .Where(r=>r.ReservationStart <= sinceWhen
                         && r.ReservationEnd >= tillWhen)
                         on desk equals reservations.Desk into gj
@@ -71,16 +69,15 @@ namespace DeskBookingSystem.Services
         
         //List all desks and their availability at given time, its employee version so users will not be able to
         //see if desks is reserved, or not available for some other reason nor see who is reserving
-        public List<DeskDto> GetDesksByLocation(string locationName, DateTime sinceWhen, DateTime tillWhen)
+        public async Task<List<DeskDto>> GetDesksByLocation(string locationName, DateTime sinceWhen, DateTime tillWhen)
         {
-            var location = _locationRepository.GetLocations()
-                     .FirstOrDefault(l => l.Name == locationName);
+            var location = _locationRepository.GetByName(locationName);
             if (location == null) throw new LocationNotFoundException("There is no location with given name");
             //Left join to desks with given location desks where there is some reservation at given time
             //desks where is reservation or availability is set to false, will be listed as unavailable
-            var desks = from desk in _deskRepository.GetDesks()
+            var desks = from desk in (await _deskRepository.GetDesks())
                         .Where(d => d.Location.Name == locationName)
-                        join reservations in _reservationRepository.GetReservations()
+                        join reservations in (await _reservationRepository.GetReservations())
                         .Where(r => r.ReservationStart <= sinceWhen
                         && r.ReservationEnd >= tillWhen)
                         on desk equals reservations.Desk into gj
@@ -97,30 +94,28 @@ namespace DeskBookingSystem.Services
 
         }
         //Set availability of desk with given ID to true or false
-        public bool ManageAvailability(int id, bool availability)
+        public async Task<bool> ManageAvailability(int id, bool availability)
         {
-            var desk = _deskRepository.GetDesks()
-                .FirstOrDefault(d => d.Id == id);
+            var desk = await _deskRepository.GetDeskById(id);
             if (desk == null) throw new DeskNotFoundException("There is no desk with given Id");
-            var update = _deskRepository.UpdateDeskAvailability(id, availability);
+            var update = await _deskRepository.UpdateDeskAvailability(id, availability);
             if (!update) return false;
             return true;
         }
 
 
         //Remove desk with given id, throws exception if desk id is wrong or its not available, or there is ongoing reservation
-        public bool RemoveDesk(int id)
+        public async Task<bool> RemoveDesk(int id)
         {
-            var desk = _deskRepository.GetDesks()
-                .FirstOrDefault(d => d.Id == id);
+            var desk = await _deskRepository.GetDeskById(id);
             if (desk == null) throw new DeskNotFoundException("There is no desk with given Id");
             //Search for ongoing reservations
-            var reservations = _dateValidationService.DeskIsAvailableAtGivenTime(id, DateTime.Now, DateTime.Now);
+            var reservations = await _dateValidationService.DeskIsAvailableAtGivenTime(id, DateTime.Now, DateTime.Now);
             if (reservations == false || desk.Available == false)
             {
                 throw new DeskNotAvaibleException("Desk is not available, cannot remove it.");
             }
-            _deskRepository.RemoveDesk(desk);
+            await _deskRepository.RemoveDesk(desk);
 
             return true;
         }

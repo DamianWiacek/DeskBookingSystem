@@ -5,11 +5,11 @@ namespace DeskBookingSystem.Repositories
 {
     public interface IReservationRepository
     {
-        public IQueryable<Reservation> GetAll();
-        public void Add(Reservation reservation);
-        public Reservation GetById(int reservationId);
-        public void SaveChanges();
-        public IQueryable<Reservation> GetReservations();
+        public Task<List<Reservation>> GetAll();
+        public Task Add(Reservation reservation);
+        public Task<Reservation> GetById(int reservationId);
+        public Task SaveChanges();
+        public Task<List<Reservation>> GetReservations();
     }
     public class ReservationRepository : IReservationRepository
     {
@@ -19,27 +19,27 @@ namespace DeskBookingSystem.Repositories
         {
             _dbContext = dbContext;
         }
-        public IQueryable<Reservation> GetAll()
+        public async Task<List<Reservation>> GetAll()
         {
-            return _dbContext.Reservations;
+            return await _dbContext.Reservations.ToListAsync();
         }
-        public void Add(Reservation reservation)
+        public async Task Add(Reservation reservation)
         {
-            _dbContext.Add(reservation);
-            _dbContext.SaveChanges();
-        }
+            await _dbContext.AddAsync(reservation);
+            await  _dbContext.SaveChangesAsync();
+        }   
 
-        public Reservation GetById(int reservationId)
+        public async Task<Reservation> GetById(int reservationId)
         {
-            return _dbContext.Reservations.FirstOrDefault(r => r.Id == reservationId);
+            return await _dbContext.Reservations.FirstOrDefaultAsync(r => r.Id == reservationId);
         }
-        public void SaveChanges()
+        public async Task SaveChanges()
         {
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
-        public IQueryable<Reservation> GetReservations()
+        public async Task<List<Reservation>> GetReservations()
         {
-            return _dbContext.Reservations;
+            return await _dbContext.Reservations.ToListAsync();
         }
     }
 

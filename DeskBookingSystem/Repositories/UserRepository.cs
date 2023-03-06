@@ -6,8 +6,8 @@ namespace DeskBookingSystem.Repositories
 {
     public interface IUserRepository
     {
-        public void AddUser(User user);
-        public User GetUserByEmail(string email);
+        public Task AddUser(User user);
+        public Task<User> GetUserByEmail(string email);
     }
     public class UserRepository : IUserRepository
     {
@@ -17,16 +17,16 @@ namespace DeskBookingSystem.Repositories
         {
             _dbContext = dbContext;
         }
-        public void AddUser(User user)
+        public async Task AddUser(User user)
         {
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
         }
-        public User GetUserByEmail(string email)
+        public async Task<User> GetUserByEmail(string email)
         {
-            return _dbContext.Users
+            return await _dbContext.Users
             .Include(x => x.Role)
-                .FirstOrDefault(x => x.Email == email);
+                .FirstOrDefaultAsync(x => x.Email == email);
         }
     }
 
