@@ -12,10 +12,10 @@ namespace DeskBookingSystem.Services
     }
     public class DateValidationService : IDateValidationService
     {
-        private readonly DeskRepository _deskRepository;
-        private readonly ReservationRepository _reservationRepository;
+        private readonly IDeskRepository _deskRepository;
+        private readonly IReservationRepository _reservationRepository;
 
-        public DateValidationService(DeskRepository deskRepository, ReservationRepository reservationRepository)
+        public DateValidationService(IDeskRepository deskRepository, IReservationRepository reservationRepository)
         {
             _deskRepository = deskRepository;
             _reservationRepository = reservationRepository;
