@@ -38,7 +38,8 @@ builder.Services.AddAuthentication(option =>
 builder.Services.AddSingleton(authenticationSettings);
 builder.Services.AddControllers();
 builder.Services.AddDbContext<BookingSystemDbContext>
-    (options => options.UseSqlServer("Server=DESKTOP-2UA5DVQ;Database=DeskBookingSystemDb;Trusted_Connection=True;"));
+    (options => options.UseSqlServer("Server=DESKTOP-2UA5DVQ;Database=DeskBookingSystemDb;Trusted_Connection=True;"),
+    ServiceLifetime.Transient);
 builder.Services.AddScoped<IlocationService,LocationsService>();
 builder.Services.AddScoped<IDesksService, DesksService>();
 builder.Services.AddScoped<IReservationsService, ReservationsService>();
