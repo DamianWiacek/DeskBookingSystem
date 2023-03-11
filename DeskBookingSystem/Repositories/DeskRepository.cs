@@ -30,14 +30,14 @@ namespace DeskBookingSystem.Repositories
        
         public async Task<List<Desk>> GetDesks()
         {
-            return await _dbContext.Desks.ToListAsync();
+            return await _dbContext.Desks.Include(x=>x.Location).ToListAsync();
         }
         public async Task<bool> UpdateDeskAvailability(int id, bool availability)
         {
             var desk = await _dbContext.Desks
                 .FirstOrDefaultAsync(d => d.Id == id);
             desk.Available = availability;
-            _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
             return true;
         }
         public async Task RemoveDesk(Desk desk)

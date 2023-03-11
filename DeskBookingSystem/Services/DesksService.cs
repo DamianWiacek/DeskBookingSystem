@@ -60,7 +60,7 @@ namespace DeskBookingSystem.Services
                         from subreservation in gj.DefaultIfEmpty()
                         select new DeskDtoForAdmin { LocationName= desk.Location.Name,
                                                      Id = desk.Id,
-                                                     ReservingUserId = subreservation.UserId,
+                                                     ReservingUserId =subreservation !=null ? subreservation.UserId : 0,
                                                      Available = desk.Available};
 
 

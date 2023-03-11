@@ -25,7 +25,7 @@ namespace DeskBookingSystem.Controllers
         }
 
         [HttpPut("{reservationId}/{newDeskId}")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Employee")]
         public async Task<ActionResult> ChangeDesk(int reservationId, int newDeskId)
         {
             var isChanged = await _reservationsService.ChangeDesk(reservationId, newDeskId);
@@ -33,5 +33,6 @@ namespace DeskBookingSystem.Controllers
             return Ok();
 
         }
+        
     }
 }

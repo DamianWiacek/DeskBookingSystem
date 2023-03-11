@@ -17,7 +17,7 @@ namespace DeskBookingSystem.Controllers
         }
         
         [HttpPost]
-        //5[Authorize(Roles ="Administrator")]
+        [Authorize(Roles ="Administrator")]
         public async Task<ActionResult> AddDesks([FromBody] NewDeskDto newDeskDto)
         {
             

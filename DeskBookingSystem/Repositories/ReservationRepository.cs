@@ -39,7 +39,7 @@ namespace DeskBookingSystem.Repositories
         }
         public async Task<List<Reservation>> GetReservations()
         {
-            return await _dbContext.Reservations.ToListAsync();
+            return await _dbContext.Reservations.Include(x=>x.Desk).ToListAsync();
         }
     }
 
